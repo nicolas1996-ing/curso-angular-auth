@@ -4,6 +4,7 @@ import { environment } from '@environments/environment';
 import { Observable, switchMap, tap } from 'rxjs';
 import { TokenService } from '../service/token.service';
 import { loginResponse } from '../models/auth.model';
+import { TokenCookiesService } from '../service/token-cookies.service';
 // configuracion de shortcuts (@env..) : /Users/nicolasaristizabal/Desktop/somos/ng/curso-angular-auth/tsconfig.json
 
 @Injectable({
@@ -13,13 +14,25 @@ export class AuthService {
   API_URL = `${environment.API_URL}/auth`;
   constructor(
     private httpClient: HttpClient,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private tokenCookieService: TokenCookiesService
   ) {}
 
   login(email: string, password: string): Observable<loginResponse> {
-    return this.httpClient
-      .post<loginResponse>(`${this.API_URL}/login`, { email, password })
-      .pipe(tap((res) => this.tokenService.saveTokenInLS(res.access_token)));
+    return (
+      this.httpClient
+        .post<loginResponse>(`${this.API_URL}/login`, { email, password })
+        // .pipe(tap((res) => this.tokenService.saveTokenInLS(res.access_token)));
+        .pipe(
+          tap((res) =>
+            this.tokenCookieService.saveTokenInCookie(res.access_token)
+          )
+        )
+    );
+  }
+
+  logout() {
+    this.tokenCookieService.removeTokenCookie();
   }
 
   register(email: string, password: string, name: string) {
@@ -39,7 +52,10 @@ export class AuthService {
       })
       .pipe(
         switchMap((_) => this.login(email, password)),
-        tap((res) => this.tokenService.saveTokenInLS(res.access_token))
+        // tap((res) => this.tokenService.saveTokenInLS(res.access_token))
+        tap((res) =>
+          this.tokenCookieService.saveTokenInCookie(res.access_token)
+        )
       );
   }
 
