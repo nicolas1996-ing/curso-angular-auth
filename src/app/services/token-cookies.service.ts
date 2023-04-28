@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import jwtDecode, { JwtPayload } from 'jwt-decode';
 import { getCookie, removeCookie, setCookie } from 'typescript-cookie';
 
 @Injectable({
@@ -19,5 +20,22 @@ export class TokenCookiesService {
 
   removeTokenCookie() {
     removeCookie('token-trello-cookie');
+  }
+
+  isValidToken() {
+    const token = this.getTokenCookie();
+    if (!token) {
+      return false;
+    }
+
+    const decodeToken = jwtDecode<JwtPayload>(token);
+    if (decodeToken && decodeToken?.exp) {
+      const tokenDate = new Date(0);
+      tokenDate.setUTCSeconds(decodeToken.exp);
+      const today = new Date();
+      return tokenDate.getTime() > today.getTime(); // comparacion de fechas
+    }
+
+    return false;
   }
 }

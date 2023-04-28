@@ -2,8 +2,9 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { TokenService } from '../service/token.service';
-import { TokenCookiesService } from '../service/token-cookies.service';
+import { TokenService } from '../services/token.service';
+import { TokenCookiesService } from '../services/token-cookies.service';
+import { RefreshTokenService } from '../services/refresh-token.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,13 +13,18 @@ export class AuthGuard implements CanActivate {
   /* token almacenado en una cookie */
   constructor(
     private tokenCookiesService: TokenCookiesService,
+    private refreshTokenSerivce: RefreshTokenService,
     private router: Router
   ) {}
 
   canActivate() {
-    const token = this.tokenCookiesService.getTokenCookie();
+    // sesion dura lo que dure el access token
+    // const isValidToken = this.tokenCookiesService.isValidToken();
 
-    if (!token) {
+    // sesion dura lo que dure el refresh token
+    const isValidToken = this.refreshTokenSerivce.isValidRefreshToken();
+
+    if (!isValidToken) {
       this.router.navigate(['/login']);
       return false;
     }
