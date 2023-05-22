@@ -48,7 +48,7 @@ export class LoginFormComponent {
       const { email, password } = this.form.getRawValue();
       this.authService.login(email, password).subscribe({
         next: (resp) => {
-          console.log(resp);
+          // console.log(resp);
           this.router.navigate(['/app/']);
           this.status = 'success';
         },

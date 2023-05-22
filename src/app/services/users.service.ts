@@ -19,13 +19,13 @@ export class UsersService {
     private tokenCookieService: TokenCookiesService
   ) {}
 
+  // context: checkToken() => le agrega el token al request
   getUsers(): Observable<User[]> {
     const token = this.tokenCookieService.getTokenCookie();
     return this.http.get<User[]>(`${this.API_URL}`, {
       context: checkToken(),
     });
   }
-  // context: checkToken() => le agrega el token al request
 }
 
 /*

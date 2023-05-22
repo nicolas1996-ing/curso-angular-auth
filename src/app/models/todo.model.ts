@@ -1,3 +1,4 @@
+import { Card } from './board.model';
 export interface ToDo {
   id: string;
   title: string;
